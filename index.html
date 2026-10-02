@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>POR — Bypass Link</title>
+<meta name="description" content="Bypass link rút gọn nhanh — link4m, link1s, yeumoney." />
+<style>
+  :root {
+    --bg: #0d0f13;
+    --panel: #151922;
+    --line: #232936;
+    --text: #e6e9ef;
+    --muted: #8a93a6;
+    --accent: #4f8cff;
+    --accent-hover: #6ba1ff;
+    --ok: #36c98a;
+    --err: #ff5a6a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px; line-height: 1.5; min-height: 100vh;
+  }
+  .shell { max-width: 640px; margin: 8vh auto 0; padding: 0 20px 60px; }
+  .head { margin-bottom: 32px; }
+  .brand {
+    font-size: 40px; font-weight: 800; letter-spacing: 4px;
+    margin: 0 0 6px;
+    background: linear-gradient(90deg, var(--accent), #a06bff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .tag { color: var(--muted); margin: 0; font-size: 14px; }
+
+  .form {
+    display: flex; gap: 10px;
+    background: var(--panel); padding: 10px;
+    border: 1px solid var(--line); border-radius: 12px;
+  }
+  #url {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); padding: 10px 12px; font-size: 15px;
+  }
+  #url::placeholder { color: var(--muted); }
+  #go {
+    background: var(--accent); color: white; border: none;
+    border-radius: 8px; padding: 10px 22px;
+    font-weight: 600; cursor: pointer; transition: background .15s;
+  }
+  #go:hover { background: var(--accent-hover); }
+  #go:disabled { opacity: .5; cursor: not-allowed; }
+
+  .status {
+    margin-top: 20px; padding: 12px 16px;
+    border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); font-size: 14px;
+  }
+  .status.ok { border-color: rgba(54,201,138,.4); color: var(--ok); }
+  .status.err { border-color: rgba(255,90,106,.4); color: var(--err); }
+
+  .result {
+    margin-top: 24px; padding: 18px;
+    border-radius: 12px; border: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .result label {
+    display: block; font-size: 12px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px;
+  }
+  .key-row { display: flex; gap: 8px; }
+  #key {
+    flex: 1; background: #0a0c10; border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+  }
+  #copy {
+    background: #1e2430; color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 16px; cursor: pointer; font-weight: 500;
+  }
+  #copy:hover { background: #262d3d; }
+  #open {
+    display: inline-block; margin-top: 10px; color: var(--accent);
+    text-decoration: none; font-size: 13px;
+  }
+  #open:hover { text-decoration: underline; }
+  .meta { margin: 12px 0 0; color: var(--muted); font-size: 12px; }
+
+  .settings {
+    margin-top: 32px; padding: 14px 16px;
+    border-radius: 10px; border: 1px dashed var(--line);
+    background: rgba(21,25,34,.5); font-size: 13px; color: var(--muted);
+  }
+  .settings summary { cursor: pointer; color: var(--text); }
+  .settings input {
+    width: 100%; margin-top: 10px;
+    background: #0a0c10; border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 10px;
+    color: var(--text); font-family: ui-monospace, monospace; font-size: 12px;
+  }
+  footer { margin-top: 48px; text-align: center; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="head">
+    <h1 class="brand">POR</h1>
+    <p class="tag">Dán link rút gọn. Nhận link đích.</p>
+  </header>
+
+  <section class="form">
+    <input id="url" type="url" placeholder="https://link4m.com/xxxxxxx"
+           autocomplete="off" spellcheck="false" />
+    <button id="go" type="button">Bypass</button>
+  </section>
+
+  <section id="status" class="status" hidden></section>
+
+  <section id="result" class="result" hidden>
+    <label for="key">Link đích</label>
+    <div class="key-row">
+      <input id="key" type="text" readonly />
+      <button id="copy" type="button">Sao chép</button>
+    </div>
+    <a id="open" href="#" target="_blank" rel="noopener">Mở link trong tab mới ↗</a>
+    <p id="meta" class="meta"></p>
+  </section>
+
+  <details class="settings" id="settings">
+    <summary>Cấu hình Worker proxy</summary>
+    <p>Dán URL Cloudflare Worker của He vào đây. Ví dụ:<br>
+       <code>https://por-proxy.username.workers.dev</code></p>
+    <input id="worker" type="text" placeholder="https://por-proxy.xxx.workers.dev" />
+  </details>
+
+  <footer>POR • v1.0</footer>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const $url    = document.getElementById('url');
+  const $go     = document.getElementById('go');
+  const $status = document.getElementById('status');
+  const $result = document.getElementById('result');
+  const $key    = document.getElementById('key');
+  const $copy   = document.getElementById('copy');
+  const $open   = document.getElementById('open');
+  const $meta   = document.getElementById('meta');
+  const $worker = document.getElementById('worker');
+  const $settings = document.getElementById('settings');
+
+  const savedWorker = localStorage.getItem('por.worker') || '';
+  $worker.value = savedWorker;
+  $worker.addEventListener('input', () => {
+    localStorage.setItem('por.worker', $worker.value.trim());
+  });
+
+  if (!savedWorker) {
+    $settings.open = true;
+  }
+
+  function setStatus(text, kind) {
+    $status.hidden = false;
+    $status.className = 'status' + (kind ? ' ' + kind : '');
+    $status.textContent = text;
+  }
+  function clearStatus() {
+    $status.hidden = true;
+    $status.textContent = '';
+    $status.className = 'status';
+  }
+
+  async function doBypass() {
+    const url = $url.value.trim();
+    if (!url) { setStatus('Bạn chưa dán link.', 'err'); return; }
+
+    let parsed;
+    try { parsed = new URL(url); }
+    catch { setStatus('URL không hợp lệ.', 'err'); return; }
+
+    if (!/^https?:$/.test(parsed.protocol)) {
+      setStatus('Chỉ chấp nhận http/https.', 'err'); return;
+    }
+
+    const workerBase = $worker.value.trim().replace(/\/+$/, '');
+    if (!workerBase) {
+      setStatus('Chưa cấu hình Worker. Mở mục "Cấu hình Worker proxy" bên dưới.', 'err');
+      $settings.open = true;
+      return;
+    }
+
+    $go.disabled = true;
+    $result.hidden = true;
+    setStatus('Đang xử lý...', null);
+
+    try {
+      const res = await fetch(workerBase + '/api/bypass', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: parsed.href }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        setStatus(data?.error || 'Bypass thất bại.', 'err');
+        return;
+      }
+
+      clearStatus();
+      $key.value = data.key;
+      $open.href = data.key;
+      $result.hidden = false;
+      $meta.textContent = `nguồn: ${data.source} • ${data.elapsedMs ?? '?'}ms`;
+    } catch (err) {
+      setStatus('Không kết nối được Worker: ' + (err.message || err), 'err');
+    } finally {
+      $go.disabled = false;
+    }
+  }
+
+  $go.addEventListener('click', doBypass);
+  $url.addEventListener('keydown', e => { if (e.key === 'Enter') doBypass(); });
+
+  $copy.addEventListener('click', async () => {
+    if (!$key.value) return;
+    try {
+      await navigator.clipboard.writeText($key.value);
+      $copy.textContent = 'Đã chép';
+      setTimeout(() => $copy.textContent = 'Sao chép', 1200);
+    } catch {
+      $key.select(); document.execCommand('copy');
+    }
+  });
+})();
+</script>
+</body>
+  </html>
